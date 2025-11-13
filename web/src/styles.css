@@ -1,0 +1,10 @@
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; margin:0; padding:0; background:#f6f8fb; color:#222; }
+.app { max-width:720px; margin:20px auto; padding:16px; background:#fff; border-radius:8px; box-shadow: 0 6px 18px rgba(0,0,0,0.06); }
+.header { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+.controls input, .controls select { padding:8px; margin-right:8px; }
+.chat { height:300px; overflow:auto; border:1px solid #eee; padding:8px; border-radius:6px; background:#fafafa; }
+.message { padding:6px 8px; margin:6px 0; border-radius:6px; background:#fff; box-shadow: 0 1px 0 rgba(0,0,0,0.02); }
+.footer { margin-top:10px; display:flex; gap:8px; }
+button { padding:8px 12px; border-radius:6px; border: none; background:#1976d2; color:#fff; cursor:pointer; }
+button.secondary { background:#6b7280; }
+small.note { color:#666; }
