@@ -1,9 +1,9 @@
-name: SFTP Deploy
+name: Auto Deploy via SSH
 
 on:
   push:
     branches:
-      - master  # деплой при пуше в master
+      - master
 
 jobs:
   deploy:
@@ -13,19 +13,32 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Upload files to server via SFTP
+      - name: Upload files via SCP (SFTP)
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.FTP_HOST }}
           username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
           port: 22
           source: |
-            ./               # заливаем всё из корня проекта
-            !.git/**         # исключаем папку .git
-            !.github/**      # исключаем workflows и прочее
-            !node_modules/** # исключаем зависимости
-            !.env            # не отправляем конфигурации
+            ./               
+            !.git/**
+            !.github/**
+            !node_modules/**
+            !.env
             !README.md
             !*.yml
           target: /var/www/chatpwa.ru
+
+      - name: Build project on remote server
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          port: 22
+          script: |
+            cd /var/www/chatpwa.ru
+            npm install --legacy-peer-deps
+            npm run build
+
