@@ -21,11 +21,11 @@ jobs:
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           port: 22
           source: ./
-	  exclude: |
-  	    .git/
-  	    .github/
-  	    node_modules/
-  	    web/node_modules/               
+          exclude: |
+            .git/
+            .github/
+            node_modules/
+            web/node_modules/
           target: /var/www/chatpwa.ru
 
       - name: Build project on remote server
