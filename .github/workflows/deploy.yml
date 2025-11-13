@@ -20,12 +20,7 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           port: 22
-          source: | 
-            ./
-            !.git/
-            !.github/
-            !node_modules/
-            !web/node_modules/
+          source: "./*,!.git/**,!.github/**,!node_modules/**,!web/node_modules/**"
           target: /var/www/chatpwa.ru
 
       - name: Build project on remote server
