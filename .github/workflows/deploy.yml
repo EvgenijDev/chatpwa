@@ -3,7 +3,7 @@ name: SFTP Deploy
 on:
   push:
     branches:
-      - master
+      - master  # деплой при пуше в master
 
 jobs:
   deploy:
@@ -20,6 +20,12 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           port: 22
-          source: "./"
-          target: "/var/www/chatpwa.ru"
-
+          source: |
+            ./               # заливаем всё из корня проекта
+            !.git/**         # исключаем папку .git
+            !.github/**      # исключаем workflows и прочее
+            !node_modules/** # исключаем зависимости
+            !.env            # не отправляем конфигурации
+            !README.md
+            !*.yml
+          target: /var/www/chatpwa.ru
