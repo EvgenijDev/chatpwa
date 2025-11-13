@@ -1,4 +1,4 @@
-name: SFTP Deploy
+name: FTP Deploy
 
 on:
   push:
@@ -6,20 +6,21 @@ on:
       - master
 
 jobs:
-  deploy:
+  ftp-deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Deploy via SFTP
-        uses: appleboy/scp-action@master
+      - name: FTP Deploy
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.6
         with:
-          host: ${{ secrets.FTP_HOST }}
+          server: ${{ secrets.FTP_HOST }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          port: 22
-          source: "./"
-          target: "/var/www/chatpwa.ru"
+          local-dir: ./            
+          server-dir: /var/www/chatpwa.ru
+          protocol: ftps   
+          port: 21
 
