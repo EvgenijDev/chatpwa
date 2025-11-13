@@ -21,6 +21,6 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./            
           server-dir: /var/www/chatpwa.ru/
-          protocol: ftps   
+          protocol: ftp   
           port: 21
 
