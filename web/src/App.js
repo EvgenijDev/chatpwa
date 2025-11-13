@@ -35,7 +35,7 @@ function App() {
   }, []);
 
   const register = () => {
-    if (!inputName.trim()) return alert("Введите имя 445657788!");
+    if (!inputName.trim()) return alert("Введите имя 4!");
     socket.emit("register", { name: inputName.trim(), password: FAMILY_PASSWORD });
   };
 
