@@ -36,7 +36,7 @@ jobs:
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           port: 22
           script: |
-            cd /var/www/chatpwa.ru
+            cd /var/www/chatpwa.ru/web
             npm install --legacy-peer-deps
             npm run build
 
