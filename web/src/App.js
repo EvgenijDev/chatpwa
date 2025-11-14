@@ -1,11 +1,8 @@
 import { useEffect, useState } from "react";
-import { io } from "socket.io-client";
+import socket from "./Socket";
 import VideoCall from "./VideoCall";
 
-// Один общий socket для всего приложения
-const socket = io(process.env.REACT_APP_SERVER_URL || "https://chatpwa.ru", {
-  transports: ["websocket"], // для надёжности
-});
+
 
 function App() {
   const [username, setUsername] = useState("");
@@ -16,26 +13,34 @@ function App() {
 
   // Слушаем сервер
   useEffect(() => {
-    socket.on("user_list", (users) => setOnlineUsers(users));
-
+    // Подписка на список пользователей
+    socket.on("user_list", (users) => {
+      // если username ещё не установлен, просто показываем всех
+      console.log("⚡ получение user_list app.js");
+      setOnlineUsers((prev) => {
+        if (!username) return users;
+        return users.filter((u) => u !== username);
+      });
+    });
+  
+    // Подтверждение регистрации
     socket.on("register_ok", ({ name }) => {
+
       setUsername(name);
       setRegistered(true);
+      console.log("⚡ регистрация нового пользователя ", name);
+      // после регистрации запросим актуальный список
+      socket.emit("request_user_list");
     });
-
-    socket.on("register_failed", ({ message }) => {
-      alert(message);
-    });
-
+  
     return () => {
       socket.off("user_list");
       socket.off("register_ok");
-      socket.off("register_failed");
     };
-  }, []);
+  }, [username]);
 
   const register = () => {
-    if (!inputName.trim()) return alert("Введите имя 4979!");
+    if (!inputName.trim()) return alert("Введите имя!");
     socket.emit("register", { name: inputName.trim(), password: FAMILY_PASSWORD });
   };
 

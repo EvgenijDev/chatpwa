@@ -50,6 +50,11 @@ io.on("connection", (socket) => {
     socket.emit("register_ok", { name });
   });
 
+  // Запрос актуального списка пользователей
+  socket.on("request_user_list", () => {
+    io.emit("user_list", Object.keys(users));
+  });
+
   socket.on("chat_message", ({ to, text }) => {
     if (!socket.username) return;
     if (to && users[to]) {
@@ -57,24 +62,24 @@ io.on("connection", (socket) => {
     }
   });
 
-  // placeholders for future WebRTC signaling
-// Звонок (offer)
-socket.on("call_offer", ({ to, offer, from }) => {
-  console.log("Call offer to:", to, "from:", from);
-  if (to && users[to]) {
-    users[to].emit("call_offer", { from, offer });
-  }
-});
+    // placeholders for future WebRTC signaling
+  // Звонок (offer)
+  socket.on("call_offer", ({ to, offer, from }) => {
+    console.log("Call offer to:", to, "from:", from);
+    if (to && users[to]) {
+      users[to].emit("call_offer", { from, offer });
+    }
+  });
 
-// Ответ на звонок (answer)
-socket.on("call_answer", ({ to, answer, from }) => {
-  if (to && users[to]) users[to].emit("call_answer", { from, answer });
-});
+  // Ответ на звонок (answer)
+  socket.on("call_answer", ({ to, answer, from }) => {
+    if (to && users[to]) users[to].emit("call_answer", { from, answer });
+  });
 
-// ICE кандидаты
-socket.on("ice_candidate", ({ to, candidate, from }) => {
-  if (to && users[to]) users[to].emit("ice_candidate", { from, candidate });
-});
+  // ICE кандидаты
+  socket.on("ice_candidate", ({ to, candidate, from }) => {
+    if (to && users[to]) users[to].emit("ice_candidate", { from, candidate });
+  });
 
 
   socket.on("disconnect", () => {
