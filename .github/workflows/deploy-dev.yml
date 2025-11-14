@@ -1,0 +1,42 @@
+name: Auto Deploy DEV
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Upload files via SCP (SFTP)
+        uses: appleboy/scp-action@v1.0.0
+        with:
+          host: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          port: 22
+          source: "./*,!.git/**,!.github/**,!node_modules/**,!web/node_modules/**"
+          target: /var/www/dev.chatpwa.ru
+
+      - name: Build project on remote server
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          port: 22
+          script: |
+            cd /var/www/dev.chatpwa.ru/web
+            npm install --legacy-peer-deps
+            npm run build
+
+            cd /var/www/dev.chatpwa.ru/server
+            npm install --legacy-peer-deps
+            pm2 restart chatpwa-dev || pm2 start server.js --name chatpwa-dev --watch --env development -- --port=3002
+            pm2 save
+
