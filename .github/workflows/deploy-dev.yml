@@ -33,7 +33,7 @@ jobs:
           script: |
             cd /var/www/dev.chatpwa.ru/web
             npm install --legacy-peer-deps
-            npm run build
+            NODE_ENV=development npm run build
 
             cd /var/www/dev.chatpwa.ru/server
             npm install --legacy-peer-deps
