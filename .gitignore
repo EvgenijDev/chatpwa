@@ -1,0 +1,38 @@
+# Node dependencies
+node_modules/
+server/node_modules/
+web/node_modules/
+
+# Environment files
+.env
+server/.env
+web/.env
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# MacOS system files
+.DS_Store
+
+# Build outputs
+web/build/
+server/dist/
+server/build/
+
+# IDE / editor files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# GitHub workflows cache (если есть)
+.github/workflows/node_modules/
+
+# Misc temp files
+*.tmp
+*.swp
+*.bak
