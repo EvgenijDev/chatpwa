@@ -27,7 +27,17 @@ export default function VideoCall({ username, socket }) {
     if (pcRef.current) return pcRef.current;
 
     setStatus("creating-pc");
-    const pc = new RTCPeerConnection(STUN_CONFIG);
+    // const pc = new RTCPeerConnection(STUN_CONFIG);
+    const pc = new RTCPeerConnection({
+      iceServers: [
+        { urls: "stun:stun.l.google.com:19302" },
+        {
+          urls: "turn:chatpwa.ru:3478?transport=udp",
+          username: "user",
+          credential: "MY_SECRET_KEY"
+        }
+      ]
+    });
     pcRef.current = pc;
 
     pc.oniceconnectionstatechange = () => {
