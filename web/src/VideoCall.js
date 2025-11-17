@@ -32,12 +32,17 @@ export default function VideoCall({ username, socket }) {
       iceServers: [
         { urls: "stun:stun.l.google.com:19302" },
         {
-          urls: "turn:chatpwa.ru:3478?transport=udp",
+          urls: [
+            "turns:chatpwa.ru:5349?transport=tcp",
+            "turn:chatpwa.ru:3478?transport=udp",
+            "turn:chatpwa.ru:3478?transport=tcp"
+          ],
           username: "user",
-          credential: "MY_SECRET_KEY"
+          credential: process.env.REACT_APP_TURN_SECRET || "MY_SECRET_KEY"
         }
       ]
     });
+    
     pcRef.current = pc;
 
     pc.oniceconnectionstatechange = () => {
