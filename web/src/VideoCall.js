@@ -33,13 +33,14 @@ export default function VideoCall({ username, socket }) {
         { urls: "stun:stun.l.google.com:19302" },
         {
           urls: [
-            "turns:chatpwa.ru:5349?transport=tcp",
-            "turn:chatpwa.ru:3478?transport=udp",
-            "turn:chatpwa.ru:3478?transport=tcp"
+            "turns:dev.chatpwa.ru:5349?transport=tcp",
+            "turn:dev.chatpwa.ru:3478?transport=udp",
+            "turn:dev.chatpwa.ru:3478?transport=tcp"
           ],
           username: "user",
           credential: process.env.REACT_APP_TURN_SECRET || "MY_SECRET_KEY"
         }
+
       ]
     });
     
