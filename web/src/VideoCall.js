@@ -28,21 +28,21 @@ export default function VideoCall({ username, socket }) {
 
     setStatus("creating-pc");
     // const pc = new RTCPeerConnection(STUN_CONFIG);
-    const pc = new RTCPeerConnection({
-      iceServers: [
-        { urls: "stun:stun.l.google.com:19302" },
-        {
-          urls: [
-            "turns:dev.chatpwa.ru:5349?transport=tcp",
-            "turn:dev.chatpwa.ru:3478?transport=udp",
-            "turn:dev.chatpwa.ru:3478?transport=tcp"
-          ],
-          username: "user",
-          credential: process.env.REACT_APP_TURN_SECRET || "MY_SECRET_KEY"
-        }
+      const pc = new RTCPeerConnection({
+        iceServers: [
+          { urls: "stun:stun.l.google.com:19302" },
+          {
+            urls: [
+              "turn:dev.chatpwa.ru:3478?transport=udp",
+              "turn:dev.chatpwa.ru:3478?transport=tcp",
+              "turns:dev.chatpwa.ru:5349?transport=tcp"
+            ],
+            username: "testuser",
+            credential: "testpass"
+          }
+        ]
+      });
 
-      ]
-    });
     
     pcRef.current = pc;
 
