@@ -4,6 +4,7 @@ import express from "express";
 import { Server } from "socket.io";
 import path from "path";
 import { fileURLToPath } from "url";
+import crypto from "crypto";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -100,4 +101,19 @@ app.get("/", (req, res) => {
 server.listen(HTTP_PORT, () => {
   console.log(`Server listening on port ${HTTP_PORT}  (USE_HTTPS=${USE_HTTPS})`);
   console.log("Set FAMILY_PASSWORD env var to override default family password.");
+});
+
+function generateTurnCredentials(name) {
+  const ttl = 3600; // 1 час
+  const timestamp = Math.floor(Date.now() / 1000) + ttl;
+  const username = `${timestamp}:${name}`;
+  const hmac = crypto.createHmac('sha1', secret).update(username).digest('base64');
+
+  return { username, credential: hmac, ttl };
+}
+
+app.get("/turn", (req, res) => {
+  const name = req.query.name || "guest";
+
+  res.json(generateTurnCredentials(name));
 });
