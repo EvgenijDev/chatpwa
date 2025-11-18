@@ -32,8 +32,9 @@ jobs:
           port: 22
           script: |
             cd /var/www/dev.chatpwa.ru/web
+            cp .env.development .env.production
             npm install --legacy-peer-deps
-            NODE_ENV=development npm run build
+            npm run build
 
             cd /var/www/dev.chatpwa.ru/server
             npm install --legacy-peer-deps
