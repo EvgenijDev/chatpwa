@@ -1,36 +1,32 @@
 import fs from "fs";
-import https from "https";
 import express from "express";
 import { Server } from "socket.io";
 import path from "path";
 import { fileURLToPath } from "url";
 import crypto from "crypto";
+import http from "http";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const PORT = 3001;
-// CONFIG
-// For initial testing you can use self-signed certs (mkcert) or use reverse proxy (nginx) with LetsEncrypt.
-// Put cert files in ../certs/key.pem and ../certs/cert.pem when using HTTPS directly.
-const USE_HTTPS = false; // set to true if you placed certs in ../certs/
-const HTTP_PORT = process.env.PORT || 3000;
-const FAMILY_PASSWORD = process.env.FAMILY_PASSWORD || "family-secret"; // change before production
 
+// ---------------------- CONFIG ----------------------
+const PORT = process.env.PORT || 3001;
+const FAMILY_PASSWORD = process.env.FAMILY_PASSWORD || "family-secret";
+const TURN_SECRET = process.env.TURN_SECRET || "MY_SECRET_KEY";
+
+// ---------------------- APP + SERVER ----------------------
 const app = express();
+const httpServer = http.createServer(app);
 
-let server;
-if (USE_HTTPS) {
-  const keyPath = path.resolve(__dirname, "../certs/key.pem");
-  const certPath = path.resolve(__dirname, "../certs/cert.pem");
-  const key = fs.readFileSync(keyPath);
-  const cert = fs.readFileSync(certPath);
-  server = https.createServer({ key, cert }, app);
-} else {
-  server = (await import('http')).createServer(app);
-}
+const io = new Server(httpServer, {
+  cors: { origin: "*" }
+});
 
-const io = new Server(server, { cors: { origin: "*" } });
-const users = {}; // username -> socket
+// ---------------------- USERS ----------------------
+const users = {}; // name -> socket
 
 io.on("connection", (socket) => {
   console.log("New socket:", socket.id);
@@ -44,44 +40,38 @@ io.on("connection", (socket) => {
       socket.emit("register_failed", { message: "Name required" });
       return;
     }
+
     socket.username = name;
     users[name] = socket;
+
     console.log("Registered:", name);
     io.emit("user_list", Object.keys(users));
     socket.emit("register_ok", { name });
   });
 
-  // Запрос актуального списка пользователей
   socket.on("request_user_list", () => {
-    io.emit("user_list", Object.keys(users));
+    socket.emit("user_list", Object.keys(users));
   });
 
   socket.on("chat_message", ({ to, text }) => {
-    if (!socket.username) return;
     if (to && users[to]) {
       users[to].emit("chat_message", { from: socket.username, text });
     }
   });
 
-    // placeholders for future WebRTC signaling
-  // Звонок (offer)
+  // --- WebRTC signaling ---
   socket.on("call_offer", ({ to, offer, from }) => {
-    console.log("Call offer to:", to, "from:", from);
-    if (to && users[to]) {
-      users[to].emit("call_offer", { from, offer });
-    }
+    console.log("Call offer:", from, "→", to);
+    if (users[to]) users[to].emit("call_offer", { from, offer });
   });
 
-  // Ответ на звонок (answer)
   socket.on("call_answer", ({ to, answer, from }) => {
-    if (to && users[to]) users[to].emit("call_answer", { from, answer });
+    if (users[to]) users[to].emit("call_answer", { from, answer });
   });
 
-  // ICE кандидаты
   socket.on("ice_candidate", ({ to, candidate, from }) => {
-    if (to && users[to]) users[to].emit("ice_candidate", { from, candidate });
+    if (users[to]) users[to].emit("ice_candidate", { from, candidate });
   });
-
 
   socket.on("disconnect", () => {
     if (socket.username) {
@@ -92,30 +82,33 @@ io.on("connection", (socket) => {
   });
 });
 
-// serve static web build (after you run `npm run build` in web/)
-app.use(express.static(path.join(__dirname, "../web/build")));
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "../web/build/index.html"));
-});
-
-server.listen(HTTP_PORT, () => {
-  console.log(`Server listening on port ${HTTP_PORT}  (USE_HTTPS=${USE_HTTPS})`);
-  console.log("Set FAMILY_PASSWORD env var to override default family password.");
-});
-
+// ---------------------- TURN CREDENTIALS ----------------------
 function generateTurnCredentials(name) {
   const ttl = 3600; // 1 час
   const timestamp = Math.floor(Date.now() / 1000) + ttl;
   const username = `${timestamp}:${name}`;
-  const hmac = crypto.createHmac('sha1', secret).update(username).digest('base64');
+
+  const hmac = crypto
+    .createHmac("sha1", TURN_SECRET)
+    .update(username)
+    .digest("base64");
 
   return { username, credential: hmac, ttl };
 }
 
 app.get("/turn", (req, res) => {
   const name = req.query.name || "guest";
-
   res.json(generateTurnCredentials(name));
 });
 
-app.listen(PORT, () => console.log("Backend running on http://localhost:" + PORT));
+// ---------------------- STATIC FILES ----------------------
+app.use(express.static(path.join(__dirname, "../web/build")));
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../web/build/index.html"));
+});
+
+// ---------------------- START SERVER ----------------------
+httpServer.listen(PORT, () => {
+  console.log(`💡 DEV server running on http://localhost:${PORT}`);
+  console.log(`TURN_SECRET = ${TURN_SECRET}`);
+});
