@@ -1,27 +1,36 @@
 import fs from "fs";
+import https from "https";
 import express from "express";
 import { Server } from "socket.io";
 import path from "path";
 import { fileURLToPath } from "url";
+import crypto from "crypto";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const PORT = 3001;
+// CONFIG
+// For initial testing you can use self-signed certs (mkcert) or use reverse proxy (nginx) with LetsEncrypt.
+// Put cert files in ../certs/key.pem and ../certs/cert.pem when using HTTPS directly.
+const USE_HTTPS = false; // set to true if you placed certs in ../certs/
+const HTTP_PORT = process.env.PORT || 3000;
+const FAMILY_PASSWORD = process.env.FAMILY_PASSWORD || "family-secret"; // change before production
 
-// ---------------------- CONFIG ----------------------
-const PORT = process.env.PORT || 3001;
-const FAMILY_PASSWORD = process.env.FAMILY_PASSWORD || "family-secret";
-const TURN_SECRET = process.env.TURN_SECRET || "MY_SECRET_KEY";
-
-// ---------------------- APP + SERVER ----------------------
 const app = express();
-const httpServer = http.createServer(app);
 
-const io = new Server(httpServer, {
-  cors: { origin: "*" }
-});
+let server;
+if (USE_HTTPS) {
+  const keyPath = path.resolve(__dirname, "../certs/key.pem");
+  const certPath = path.resolve(__dirname, "../certs/cert.pem");
+  const key = fs.readFileSync(keyPath);
+  const cert = fs.readFileSync(certPath);
+  server = https.createServer({ key, cert }, app);
+} else {
+  server = (await import('http')).createServer(app);
+}
 
-// ---------------------- USERS ----------------------
-const users = {}; // name -> socket
+const io = new Server(server, { cors: { origin: "*" } });
+const users = {}; // username -> socket
 
 io.on("connection", (socket) => {
   console.log("New socket:", socket.id);
@@ -35,38 +44,44 @@ io.on("connection", (socket) => {
       socket.emit("register_failed", { message: "Name required" });
       return;
     }
-
     socket.username = name;
     users[name] = socket;
-
     console.log("Registered:", name);
     io.emit("user_list", Object.keys(users));
     socket.emit("register_ok", { name });
   });
 
+  // Запрос актуального списка пользователей
   socket.on("request_user_list", () => {
-    socket.emit("user_list", Object.keys(users));
+    io.emit("user_list", Object.keys(users));
   });
 
   socket.on("chat_message", ({ to, text }) => {
+    if (!socket.username) return;
     if (to && users[to]) {
       users[to].emit("chat_message", { from: socket.username, text });
     }
   });
 
-  // --- WebRTC signaling ---
+    // placeholders for future WebRTC signaling
+  // Звонок (offer)
   socket.on("call_offer", ({ to, offer, from }) => {
-    console.log("Call offer:", from, "→", to);
-    if (users[to]) users[to].emit("call_offer", { from, offer });
+    console.log("Call offer to:", to, "from:", from);
+    if (to && users[to]) {
+      users[to].emit("call_offer", { from, offer });
+    }
   });
 
+  // Ответ на звонок (answer)
   socket.on("call_answer", ({ to, answer, from }) => {
-    if (users[to]) users[to].emit("call_answer", { from, answer });
+    if (to && users[to]) users[to].emit("call_answer", { from, answer });
   });
 
+  // ICE кандидаты
   socket.on("ice_candidate", ({ to, candidate, from }) => {
-    if (users[to]) users[to].emit("ice_candidate", { from, candidate });
+    if (to && users[to]) users[to].emit("ice_candidate", { from, candidate });
   });
+
 
   socket.on("disconnect", () => {
     if (socket.username) {
