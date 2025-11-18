@@ -3,11 +3,6 @@ import express from "express";
 import { Server } from "socket.io";
 import path from "path";
 import { fileURLToPath } from "url";
-import crypto from "crypto";
-import http from "http";
-import dotenv from "dotenv";
-
-dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -82,33 +77,13 @@ io.on("connection", (socket) => {
   });
 });
 
-// ---------------------- TURN CREDENTIALS ----------------------
-function generateTurnCredentials(name) {
-  const ttl = 3600; // 1 час
-  const timestamp = Math.floor(Date.now() / 1000) + ttl;
-  const username = `${timestamp}:${name}`;
-
-  const hmac = crypto
-    .createHmac("sha1", TURN_SECRET)
-    .update(username)
-    .digest("base64");
-
-  return { username, credential: hmac, ttl };
-}
-
-app.get("/turn", (req, res) => {
-  const name = req.query.name || "guest";
-  res.json(generateTurnCredentials(name));
-});
-
-// ---------------------- STATIC FILES ----------------------
+// serve static web build (after you run `npm run build` in web/)
 app.use(express.static(path.join(__dirname, "../web/build")));
-app.get("*", (req, res) => {
+app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../web/build/index.html"));
 });
 
-// ---------------------- START SERVER ----------------------
-httpServer.listen(PORT, () => {
-  console.log(`💡 DEV server running on http://localhost:${PORT}`);
-  console.log(`TURN_SECRET = ${TURN_SECRET}`);
+server.listen(HTTP_PORT, () => {
+  console.log(`Server listening on port ${HTTP_PORT}  (USE_HTTPS=${USE_HTTPS})`);
+  console.log("Set FAMILY_PASSWORD env var to override default family password.");
 });

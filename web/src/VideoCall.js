@@ -23,34 +23,25 @@ export default function VideoCall({ username, socket }) {
   const STUN_CONFIG = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
 
   // --- Utility: создаёт PeerConnection (если ещё не создан) и навешивает обработчики ---
-
-  async function getTurnCreds(name) {
-    const r = await fetch(`/turn?name=${encodeURIComponent(name)}`);
-    return await r.json();
-  }
-  
-
   const createPeerConnection = async () => {
-
-    const creds = await getTurnCreds(username);
     if (pcRef.current) return pcRef.current;
 
     setStatus("creating-pc");
     // const pc = new RTCPeerConnection(STUN_CONFIG);
-    pc.current = new RTCPeerConnection({
-      iceServers: [
-        { urls: "stun:stun.l.google.com:19302" },
-        {
-          urls: [
-            "turn:dev.chatpwa.ru:3478?transport=udp",
-            "turn:dev.chatpwa.ru:3478?transport=tcp",
-            "turns:dev.chatpwa.ru:5349?transport=tcp"
-          ],
-          username: creds.username,
-          credential: creds.credential
-        }
-      ]
-    });
+      const pc = new RTCPeerConnection({
+        iceServers: [
+          { urls: "stun:stun.l.google.com:19302" },
+          {
+            urls: [
+              "turn:dev.chatpwa.ru:3478?transport=udp",
+              "turn:dev.chatpwa.ru:3478?transport=tcp",
+              "turns:dev.chatpwa.ru:5349?transport=tcp"
+            ],
+            username: "testuser",
+            credential: "testpass"
+          }
+        ]
+      });
 
     
     pcRef.current = pc;
