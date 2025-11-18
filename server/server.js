@@ -8,7 +8,7 @@ import crypto from "crypto";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
+const PORT = 3001;
 // CONFIG
 // For initial testing you can use self-signed certs (mkcert) or use reverse proxy (nginx) with LetsEncrypt.
 // Put cert files in ../certs/key.pem and ../certs/cert.pem when using HTTPS directly.
@@ -117,3 +117,5 @@ app.get("/turn", (req, res) => {
 
   res.json(generateTurnCredentials(name));
 });
+
+app.listen(PORT, () => console.log("Backend running on http://localhost:" + PORT));
