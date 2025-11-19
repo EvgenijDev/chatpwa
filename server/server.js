@@ -20,7 +20,7 @@ const envFiles = [
 ];
 
 for (const file of envFiles) {
-  const envPath = path.resolve(__dirname, '..', file);
+  const envPath = path.resolve(__dirname, file);
   if (fs.existsSync(envPath)) {
     dotenv.config({ path: envPath });
     console.log(`✅ Server loaded env from: ${file}`);
