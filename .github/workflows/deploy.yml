@@ -35,13 +35,13 @@ jobs:
             npm install --legacy-peer-deps
             npm run build
 
-      - name: Restart server
-        uses: appleboy/ssh-action@v0.1.10
-        with:
-          host: ${{ secrets.FTP_HOST }}
-          username: ${{ secrets.FTP_USERNAME }}
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
-          port: 22
-          script: |
-            cd /var/www/chatpwa.ru
-            pm2 describe chatpwa > /dev/null 2>&1 && pm2 restart chatpwa || pm2 start server/server.js --name chatpwa
+      # - name: Restart server
+      #   uses: appleboy/ssh-action@v0.1.10
+      #   with:
+      #     host: ${{ secrets.FTP_HOST }}
+      #     username: ${{ secrets.FTP_USERNAME }}
+      #     key: ${{ secrets.DEPLOY_SSH_KEY }}
+      #     port: 22
+      #     script: |
+      #       cd /var/www/chatpwa.ru
+      #       pm2 describe chatpwa > /dev/null 2>&1 && pm2 restart chatpwa || pm2 start server/server.js --name chatpwa

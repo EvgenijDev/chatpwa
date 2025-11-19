@@ -23,20 +23,20 @@ jobs:
           source: "./*,!.git/**,!.github/**,!node_modules/**,!web/node_modules/**"
           target: /var/www/dev.chatpwa.ru
 
-      - name: Build project on remote server
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: ${{ secrets.FTP_HOST }}
-          username: ${{ secrets.FTP_USERNAME }}
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
-          port: 22
-          script: |
-            cd /var/www/dev.chatpwa.ru/web
-            npm install --legacy-peer-deps
-            NODE_ENV=development npm run build
+      # - name: Build project on remote server
+      #   uses: appleboy/ssh-action@v1.0.0
+      #   with:
+      #     host: ${{ secrets.FTP_HOST }}
+      #     username: ${{ secrets.FTP_USERNAME }}
+      #     key: ${{ secrets.DEPLOY_SSH_KEY }}
+      #     port: 22
+      #     script: |
+      #       cd /var/www/dev.chatpwa.ru/web
+      #       npm install --legacy-peer-deps
+      #       NODE_ENV=development npm run build
 
-            cd /var/www/dev.chatpwa.ru/server
-            npm install --legacy-peer-deps
-            pm2 restart chatpwa-dev || pm2 start server.js --name chatpwa-dev --watch --env development -- --port=3002
-            pm2 save
+      #       cd /var/www/dev.chatpwa.ru/server
+      #       npm install --legacy-peer-deps
+      #       pm2 restart chatpwa-dev || pm2 start server.js --name chatpwa-dev --watch --env development -- --port=3002
+      #       pm2 save
 
