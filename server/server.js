@@ -30,7 +30,6 @@ for (const file of envFiles) {
 
 
 console.log('=== SERVER ENV INVESTIGATION ===');
-console.log('envPath', envPath);
 console.log('Current directory:', __dirname);
 console.log('NODE_ENV:', process.env.NODE_ENV);
 console.log('PORT:', process.env.PORT);
