@@ -13,9 +13,6 @@ const __dirname = path.dirname(__filename);
 
 // Загружаем .env файлы как React
 const envFiles = [
-  '.env.production.local',
-  '.env.production', 
-  '.env.local',
   '.env'
 ];
 
