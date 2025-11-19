@@ -6,6 +6,23 @@ import path from "path";
 import { fileURLToPath } from "url";
 import crypto from "crypto";
 
+console.log('=== SERVER ENV INVESTIGATION ===');
+console.log('Current directory:', __dirname);
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('PORT:', process.env.PORT);
+console.log('FAMILY_PASSWORD from env:', process.env.FAMILY_PASSWORD);
+
+// Проверим REACT_APP переменные в process.env
+const reactAppVars = Object.keys(process.env)
+  .filter(key => key.startsWith('REACT_APP_'));
+  
+console.log('REACT_APP variables in process.env:', reactAppVars);
+reactAppVars.forEach(key => {
+  console.log(`  ${key}=${process.env[key]}`);
+});
+
+console.log('=== END INVESTIGATION ===');
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const PORT = 3001;
