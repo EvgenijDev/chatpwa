@@ -6,6 +6,9 @@ import path from "path";
 import { fileURLToPath } from "url";
 import crypto from "crypto";
 
+// ДОЛЖНО БЫТЬ В САМОМ НАЧАЛЕ - инициализация __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 console.log('=== SERVER ENV INVESTIGATION ===');
 console.log('Current directory:', __dirname);
 console.log('NODE_ENV:', process.env.NODE_ENV);
@@ -23,8 +26,7 @@ reactAppVars.forEach(key => {
 
 console.log('=== END INVESTIGATION ===');
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+
 const PORT = 3001;
 // CONFIG
 // For initial testing you can use self-signed certs (mkcert) or use reverse proxy (nginx) with LetsEncrypt.
