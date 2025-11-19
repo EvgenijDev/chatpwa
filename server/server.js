@@ -7,6 +7,9 @@ import path from "path";
 import { fileURLToPath } from "url";
 import crypto from "crypto";
 
+// ДОЛЖНО БЫТЬ В САМОМ НАЧАЛЕ - инициализация __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Загружаем .env файлы как React
 const envFiles = [
@@ -25,9 +28,7 @@ for (const file of envFiles) {
   }
 }
 
-// ДОЛЖНО БЫТЬ В САМОМ НАЧАЛЕ - инициализация __dirname
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+
 console.log('=== SERVER ENV INVESTIGATION ===');
 console.log('Current directory:', __dirname);
 console.log('NODE_ENV:', process.env.NODE_ENV);
