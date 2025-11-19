@@ -1,3 +1,4 @@
+import dotenv from 'dotenv';
 import fs from "fs";
 import https from "https";
 import express from "express";
@@ -5,6 +6,24 @@ import { Server } from "socket.io";
 import path from "path";
 import { fileURLToPath } from "url";
 import crypto from "crypto";
+
+
+// Загружаем .env файлы как React
+const envFiles = [
+  '.env.production.local',
+  '.env.production', 
+  '.env.local',
+  '.env'
+];
+
+for (const file of envFiles) {
+  const envPath = path.resolve(__dirname, '..', file);
+  if (fs.existsSync(envPath)) {
+    dotenv.config({ path: envPath });
+    console.log(`✅ Server loaded env from: ${file}`);
+    break;
+  }
+}
 
 // ДОЛЖНО БЫТЬ В САМОМ НАЧАЛЕ - инициализация __dirname
 const __filename = fileURLToPath(import.meta.url);
