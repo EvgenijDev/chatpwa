@@ -1,6 +1,6 @@
 // web/src/VideoCall.js
 import React, { useEffect, useRef, useState } from "react";
-
+import crypto from "crypto";
 /**
  * Props:
  * - username: string (твоё имя после регистрации)
@@ -22,6 +22,31 @@ export default function VideoCall({ username, socket }) {
 
   const STUN_CONFIG = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
 
+
+
+  const generateTurnCredentials = () => {
+    const username = Date.now() + ":" + Math.random().toString(36).substring(2, 15);
+    const secret = "MY_SECRET_KEY";
+    
+    // Генерируем HMAC с нативным crypto
+    const hmac = crypto.createHmac('sha1', secret);
+    hmac.update(username);
+    const credential = hmac.digest('base64');
+    
+    console.log("🔑 Generated TURN credentials:", { username, credential });
+    
+    return {
+      username: username,
+      credential: credential,
+      urls: [
+        'turn:dev.chatpwa.ru:3478?transport=udp',
+        'turn:dev.chatpwa.ru:3478?transport=tcp',
+        'turns:dev.chatpwa.ru:5349?transport=tcp'
+      ]
+    };
+  };
+
+
   // --- Utility: создаёт PeerConnection (если ещё не создан) и навешивает обработчики ---
   const createPeerConnection = async () => {
     if (pcRef.current) return pcRef.current;
@@ -31,15 +56,7 @@ export default function VideoCall({ username, socket }) {
     const pc = new RTCPeerConnection({
       iceServers: [
         { urls: "stun:stun.l.google.com:19302" },
-        {
-          urls: [
-            "turn:dev.chatpwa.ru:3478?transport=udp",
-            "turn:dev.chatpwa.ru:3478?transport=tcp", 
-            "turns:dev.chatpwa.ru:5349?transport=tcp"
-          ],
-          username: Math.random().toString(36).substring(2, 15),
-          credential: "MY_SECRET_KEY"
-        }
+        generateTurnCredentials()
       ]
     });
 
