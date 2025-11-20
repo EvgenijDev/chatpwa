@@ -32,9 +32,14 @@ function App() {
       // после регистрации запросим актуальный список
       socket.emit("request_user_list");
     });
+
+    socket.on("register_failed", (data) => {
+      console.log("❌ Register Failed:", data);
+    });
   
     return () => {
       socket.off("user_list");
+      socket.off("register_failed");
       socket.off("register_ok");
     };
   }, [username]);
