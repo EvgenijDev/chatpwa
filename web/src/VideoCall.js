@@ -1,6 +1,6 @@
 // web/src/VideoCall.js
 import React, { useEffect, useRef, useState } from "react";
-import crypto from "crypto";
+import CryptoJS from 'crypto-js';
 /**
  * Props:
  * - username: string (твоё имя после регистрации)
@@ -28,12 +28,7 @@ export default function VideoCall({ username, socket }) {
     const username = Date.now() + ":" + Math.random().toString(36).substring(2, 15);
     const secret = "MY_SECRET_KEY";
     
-    // Генерируем HMAC с нативным crypto
-    const hmac = crypto.createHmac('sha1', secret);
-    hmac.update(username);
-    const credential = hmac.digest('base64');
-    
-    console.log("🔑 Generated TURN credentials:", { username, credential });
+    const credential = CryptoJS.HmacSHA1(username, secret).toString(CryptoJS.enc.Base64);
     
     return {
       username: username,
@@ -45,7 +40,6 @@ export default function VideoCall({ username, socket }) {
       ]
     };
   };
-
 
   // --- Utility: создаёт PeerConnection (если ещё не создан) и навешивает обработчики ---
   const createPeerConnection = async () => {
