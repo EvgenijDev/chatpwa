@@ -39,7 +39,8 @@ export default function VideoCall({ username, socket }) {
         username: "testuser",
         credential: "testpass"
       }
-    ]
+    ],
+    iceTransportPolicy: "relay"
   });
 
   pc.onicecandidate = (event) => {
@@ -387,7 +388,6 @@ export default function VideoCall({ username, socket }) {
             </button>
           </>
         )}
-        // В JSX добавь кнопку
         <button onClick={testTurnConnection}>Test TURN</button>
         {incoming && !inCall && (
           <div style={{ marginTop: 8, background: "#fff4cc", padding: 8 }}>
