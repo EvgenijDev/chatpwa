@@ -37,7 +37,7 @@ export default function VideoCall({ username, socket }) {
           'turns:dev.chatpwa.ru:5349?transport=tcp'
         ],
         username: "testuser",
-        credential: "testpass"
+        credential: "MY_SECRET_KEY"
       }
     ],
     iceTransportPolicy: "relay"
