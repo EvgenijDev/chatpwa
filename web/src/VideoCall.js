@@ -24,6 +24,47 @@ export default function VideoCall({ username, socket }) {
 
 
 
+  const testTurnConnection = () => {
+  console.log("🧪 Testing TURN connection...");
+  
+  const pc = new RTCPeerConnection({
+    iceServers: [
+      { urls: "stun:stun.l.google.com:19302" },
+      {
+        urls: [
+          'turn:dev.chatpwa.ru:3478?transport=udp',
+          'turn:dev.chatpwa.ru:3478?transport=tcp',
+          'turns:dev.chatpwa.ru:5349?transport=tcp'
+        ],
+        username: "testuser",
+        credential: "testpass"
+      }
+    ]
+  });
+
+  pc.onicecandidate = (event) => {
+    if (event.candidate) {
+      console.log("🧊 ICE Candidate:", event.candidate.candidate);
+      console.log("📡 Type:", event.candidate.type); // srflx, relay, host
+      if (event.candidate.type === "relay") {
+        console.log("✅ TURN SUCCESS! Relay candidate found");
+      }
+    }
+  };
+
+  pc.onicegatheringstatechange = () => {
+    console.log("🔄 ICE gathering state:", pc.iceGatheringState);
+  };
+
+  // Создаем data channel чтобы запустить ICE gathering
+  pc.createDataChannel("test");
+  pc.createOffer().then(offer => pc.setLocalDescription(offer));
+};
+
+// В JSX добавь кнопку
+<button onClick={testTurnConnection}>Test TURN</button>
+
+
   const generateTurnCredentials = () => {
     const username = Date.now() + ":" + Math.random().toString(36).substring(2, 15);
     const secret = "MY_SECRET_KEY";
