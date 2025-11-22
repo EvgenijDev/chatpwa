@@ -61,8 +61,7 @@ export default function VideoCall({ username, socket }) {
   pc.createOffer().then(offer => pc.setLocalDescription(offer));
 };
 
-// В JSX добавь кнопку
-<button onClick={testTurnConnection}>Test TURN</button>
+
 
 
   const generateTurnCredentials = () => {
@@ -388,7 +387,8 @@ export default function VideoCall({ username, socket }) {
             </button>
           </>
         )}
-
+        // В JSX добавь кнопку
+        <button onClick={testTurnConnection}>Test TURN</button>
         {incoming && !inCall && (
           <div style={{ marginTop: 8, background: "#fff4cc", padding: 8 }}>
             <div>📞 Входящий звонок от: {incoming}</div>
