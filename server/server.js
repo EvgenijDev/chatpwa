@@ -5,6 +5,7 @@ import express from "express";
 import { Server } from "socket.io";
 import path from "path";
 import { fileURLToPath } from "url";
+import crypto from "crypto";
 
 
 // ДОЛЖНО БЫТЬ В САМОМ НАЧАЛЕ - инициализация __dirname
@@ -54,6 +55,8 @@ const HTTP_PORT = process.env.PORT || 3000;
 const FAMILY_PASSWORD = process.env.FAMILY_PASSWORD || "family-secret"; // change before production
 
 const app = express();
+
+const secret = process.env.TURN_SECRET || "MY_SECRET_KEY";
 
 let server;
 if (USE_HTTPS) {
@@ -133,6 +136,21 @@ io.on("connection", (socket) => {
 app.use(express.static(path.join(__dirname, "../web/build")));
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../web/build/index.html"));
+});
+
+function generateTurnCredentials(name) {
+  const ttl = 3600; // 1 час
+  const timestamp = Math.floor(Date.now() / 1000) + ttl;
+  const username = `${timestamp}:${name}`;
+  const hmac = crypto.createHmac('sha1', secret).update(username).digest('base64');
+
+  return { username, credential: hmac, ttl };
+}
+
+app.get("/turn", (req, res) => {
+  const name = req.query.name || "guest";
+
+  res.json(generateTurnCredentials(name));
 });
 
 server.listen(HTTP_PORT, () => {
