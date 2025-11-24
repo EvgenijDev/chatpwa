@@ -37,6 +37,6 @@ jobs:
 
             cd /var/www/dev.chatpwa.ru/server
             npm install --legacy-peer-deps
-            pm2 restart chatpwa-dev || pm2 start server.js --name chatpwa-dev --watch --env development -- --port=3002
+            pm2 restart chatpwa-dev || pm2 start server.js --name chatpwa-dev --watch
             pm2 save
 
