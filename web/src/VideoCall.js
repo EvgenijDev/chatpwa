@@ -20,78 +20,27 @@ export default function VideoCall({ username, socket }) {
   const pendingOffer = useRef(null);             // временно хранит offer при входящем звонке
   const peerNameRef = useRef(null);              // тек. собеседник
 
-  const STUN_CONFIG = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
-
-
-
-  const testTurnConnection = () => {
-  console.log("🧪 Testing TURN connection...");
+  async function getTurnCreds(name) {
+    const r = await fetch(`/turn?name=${encodeURIComponent(name)}`);
+    return await r.json();
+  }
   
-  const pc = new RTCPeerConnection({
-    iceServers: [
-      { urls: "stun:stun.l.google.com:19302" },
-      {
-        urls: [
-          'turn:dev.chatpwa.ru:3478?transport=udp',
-          'turn:dev.chatpwa.ru:3478?transport=tcp',
-          'turns:dev.chatpwa.ru:5349?transport=tcp'
-        ],
-        username: "testuser",
-        credential: "MY_SECRET_KEY"
-      }
-    ],
-    iceTransportPolicy: "relay"
-  });
-
-  pc.onicecandidate = (event) => {
-    if (event.candidate) {
-      console.log("🧊 ICE Candidate:", event.candidate.candidate);
-      console.log("📡 Type:", event.candidate.type); // srflx, relay, host
-      if (event.candidate.type === "relay") {
-        console.log("✅ TURN SUCCESS! Relay candidate found");
-      }
-    }
-  };
-
-  pc.onicegatheringstatechange = () => {
-    console.log("🔄 ICE gathering state:", pc.iceGatheringState);
-  };
-
-  // Создаем data channel чтобы запустить ICE gathering
-  pc.createDataChannel("test");
-  pc.createOffer().then(offer => pc.setLocalDescription(offer));
-};
-
-
-
-
-  const generateTurnCredentials = () => {
-    const username = Date.now() + ":" + Math.random().toString(36).substring(2, 15);
-    const secret = "MY_SECRET_KEY";
-    
-    const credential = CryptoJS.HmacSHA1(username, secret).toString(CryptoJS.enc.Base64);
-    
-    return {
-      username: username,
-      credential: credential,
-      urls: [
-        'turn:dev.chatpwa.ru:3478?transport=udp',
-        'turn:dev.chatpwa.ru:3478?transport=tcp',
-        'turns:dev.chatpwa.ru:5349?transport=tcp'
-      ]
-    };
-  };
 
   // --- Utility: создаёт PeerConnection (если ещё не создан) и навешивает обработчики ---
   const createPeerConnection = async () => {
     if (pcRef.current) return pcRef.current;
-
+    const creds = await getTurnCreds(userName);
     setStatus("creating-pc");
-    // const pc = new RTCPeerConnection(STUN_CONFIG);
     const pc = new RTCPeerConnection({
       iceServers: [
         { urls: "stun:stun.l.google.com:19302" },
-        generateTurnCredentials()
+        { username: creds.username,
+        credential: creds.credential,
+        urls: [
+          'turn:dev.chatpwa.ru:3478?transport=udp',
+          'turn:dev.chatpwa.ru:3478?transport=tcp',
+          'turns:dev.chatpwa.ru:5349?transport=tcp'
+        ]}
       ]
     });
 
@@ -388,7 +337,6 @@ export default function VideoCall({ username, socket }) {
             </button>
           </>
         )}
-        <button onClick={testTurnConnection}>Test TURN</button>
         {incoming && !inCall && (
           <div style={{ marginTop: 8, background: "#fff4cc", padding: 8 }}>
             <div>📞 Входящий звонок от: {incoming}</div>
