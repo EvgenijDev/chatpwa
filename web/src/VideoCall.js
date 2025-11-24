@@ -29,7 +29,7 @@ export default function VideoCall({ username, socket }) {
   // --- Utility: создаёт PeerConnection (если ещё не создан) и навешивает обработчики ---
   const createPeerConnection = async () => {
     if (pcRef.current) return pcRef.current;
-    const creds = await getTurnCreds(userName);
+    const creds = await getTurnCreds(username);
     setStatus("creating-pc");
     const pc = new RTCPeerConnection({
       iceServers: [
