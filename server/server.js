@@ -53,6 +53,7 @@ const PORT = 3001;
 const USE_HTTPS = false; // set to true if you placed certs in ../certs/
 const HTTP_PORT = process.env.PORT || 3000;
 const FAMILY_PASSWORD = process.env.FAMILY_PASSWORD || "family-secret"; // change before production
+const pushTokens = {}; // username -> FCM token
 
 const app = express();
 
@@ -110,6 +111,19 @@ io.on("connection", (socket) => {
     if (to && users[to]) {
       users[to].emit("call_offer", { from, offer });
     }
+    // 🔔 Если пользователь НЕ онлайн → пушим
+    if (!users[to] && pushTokens[to]) {
+      admin.messaging().send({
+        token: pushTokens[to],
+        notification: {
+          title: "📞 Входящий звонок",
+          body: `${from} вам звонит`,
+        },
+        data: {
+          from
+        }
+      }).catch(console.error);
+    }
   });
 
   // Ответ на звонок (answer)
@@ -136,6 +150,15 @@ io.on("connection", (socket) => {
 app.use(express.static(path.join(__dirname, "../web/build")));
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../web/build/index.html"));
+});
+
+app.post("/api/savePushToken", express.json(), (req, res) => {
+  const { username, token } = req.body;
+  if (username && token) {
+    pushTokens[username] = token;
+    console.log("🔥 Saved token for", username);
+  }
+  res.json({ ok: true });
 });
 
 function generateTurnCredentials(name) {

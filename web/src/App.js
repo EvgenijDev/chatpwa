@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import socket from "./Socket";
 import VideoCall from "./VideoCall";
+import { requestNotificationPermission } from "./firebase";
 
 
 
@@ -24,13 +25,23 @@ function App() {
     });
   
     // Подтверждение регистрации
-    socket.on("register_ok", ({ name }) => {
+    socket.on("register_ok", async ({ name }) => {
 
       setUsername(name);
       setRegistered(true);
       console.log("⚡ регистрация нового пользователя ", name);
       // после регистрации запросим актуальный список
       socket.emit("request_user_list");
+
+      const token = await requestNotificationPermission();
+
+      if (token) {
+        fetch("/api/savePushToken", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username: name, token })
+        });
+      }
     });
 
     socket.on("register_failed", (data) => {
