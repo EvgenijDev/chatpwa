@@ -11,7 +11,6 @@ const firebaseConfig = {
    measurementId: process.env.REACT_APP_MEASUREMENT_ID
 };
 
-console.log('firebaseConfig', firebaseConfig);
 const app = initializeApp(firebaseConfig);
 export const messaging = getMessaging(app);
 
@@ -27,7 +26,7 @@ export async function requestNotificationPermission() {
   }
 
   const token = await getToken(messaging, {
-    vapidKey: "ВАШ_PUBLIC_VAPID_KEY" // появится в Firebase Console → Cloud Messaging → Web Push
+    vapidKey: process.env.REACT_APP_VAPID_KEY // появится в Firebase Console → Cloud Messaging → Web Push
   });
 
   console.log("🔥 FCM Token:", token);
