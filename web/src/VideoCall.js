@@ -8,7 +8,7 @@ import CryptoJS from 'crypto-js';
  */
 export default function VideoCall({ username, allUsers, onlineUsers, socket }) {
   const [users, setUsers] = useState([]);        // список других пользователей
-  const [allUsers, setAllUsers] = useState([]);
+  // const [allUsers, setAllUsers] = useState([]);
   const [onlineUsers, setOnlineUsers] = useState([]);
 
   const [target, setTarget] = useState("");      // выбранный получатель
@@ -209,23 +209,23 @@ export default function VideoCall({ username, allUsers, onlineUsers, socket }) {
   useEffect(() => {
     if (!socket) return;
 
-    const onUserList = ({ all, online }) => {
-      if (!all || !online) {
-        console.warn("Invalid user_list payload", { all, online });
-        return;
-      }
+    // const onUserList = ({ all, online }) => {
+    //   if (!all || !online) {
+    //     console.warn("Invalid user_list payload", { all, online });
+    //     return;
+    //   }
     
-      // убираем себя из общего списка
-      const filteredAll = username
-        ? all.filter((u) => u !== username)
-        : all;
+    //   // убираем себя из общего списка
+    //   const filteredAll = username
+    //     ? all.filter((u) => u !== username)
+    //     : all;
     
-      setAllUsers(filteredAll);
-      setOnlineUsers(online);
+    //   setAllUsers(filteredAll);
+    //   setOnlineUsers(online);
     
-      console.log("👥 all:", all);
-      console.log("🟢 online:", online);
-    };
+    //   console.log("👥 all:", all);
+    //   console.log("🟢 online:", online);
+    // };
     
 
     const onCallOffer = ({ from, offer }) => {
@@ -341,11 +341,16 @@ export default function VideoCall({ username, allUsers, onlineUsers, socket }) {
           <>
             <select value={target} onChange={(e) => setTarget(e.target.value)}>
               <option value="">— Выберите получателя —</option>
-              {allUsers.map((u) => (
-                <option key={u} value={u}>
-                  {u} {isOnline ? "🟢" : "⚪"}
-                </option>
-              ))}
+              {allUsers.map((u) => {
+                const isOnline = onlineUsers.includes(u);
+
+                return (
+                  <option key={u} value={u}>
+                    {u} {isOnline ? "🟢" : "⚪"}
+                  </option>
+                );
+              })}
+
             </select>
             <button onClick={startCall} style={{ marginLeft: 8 }}>
               📞 Позвонить
