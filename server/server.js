@@ -6,6 +6,9 @@ import { Server } from "socket.io";
 import path from "path";
 import { fileURLToPath } from "url";
 import crypto from "crypto";
+import { GoogleAuth } from "google-auth-library";
+import fetch from "node-fetch";
+import admin from "./firebase-admin.js";
 
 
 // ДОЛЖНО БЫТЬ В САМОМ НАЧАЛЕ - инициализация __dirname
@@ -26,25 +29,6 @@ for (const file of envFiles) {
     break;
   }
 }
-
-
-console.log('=== SERVER ENV INVESTIGATION ===');
-console.log('Current directory:', __dirname);
-console.log('NODE_ENV:', process.env.NODE_ENV);
-console.log('PORT:', process.env.PORT);
-console.log('FAMILY_PASSWORD from env:', process.env.FAMILY_PASSWORD);
-
-// Проверим REACT_APP переменные в process.env
-const reactAppVars = Object.keys(process.env)
-  .filter(key => key.startsWith('REACT_APP_'));
-  
-console.log('REACT_APP variables in process.env:', reactAppVars);
-reactAppVars.forEach(key => {
-  console.log(`  ${key}=${process.env[key]}`);
-});
-
-console.log('=== END INVESTIGATION ===');
-
 
 const PORT = 3001;
 // CONFIG
@@ -72,6 +56,16 @@ if (USE_HTTPS) {
 
 const io = new Server(server, { cors: { origin: "*" } });
 const users = {}; // username -> socket
+const knownUsers = new Set(); // все, кто когда-либо заходил
+
+const FIREBASE_KEY_PATH = path.resolve(__dirname, "./chat-pwa-j238.json");
+// загрузим ключ при старте
+let firebaseKey = null;
+try {
+  firebaseKey = JSON.parse(fs.readFileSync(FIREBASE_KEY_PATH, "utf8"));
+} catch (e) {
+  console.warn("⚠️ firebase-key.json не найден в", FIREBASE_KEY_PATH);
+}
 
 io.on("connection", (socket) => {
   console.log("New socket:", socket.id);
@@ -87,6 +81,7 @@ io.on("connection", (socket) => {
     }
     socket.username = name;
     users[name] = socket;
+    knownUsers.add(name);
     console.log("Registered:", name);
     io.emit("user_list", Object.keys(users));
     socket.emit("register_ok", { name });
@@ -94,7 +89,10 @@ io.on("connection", (socket) => {
 
   // Запрос актуального списка пользователей
   socket.on("request_user_list", () => {
-    io.emit("user_list", Object.keys(users));
+    io.emit("user_list", {
+      all: Array.from(knownUsers),
+      online: Object.keys(users)
+    });
   });
 
   socket.on("chat_message", ({ to, text }) => {
@@ -122,7 +120,7 @@ io.on("connection", (socket) => {
         data: {
           from
         }
-      }).catch(console.error);
+      }).then(console.log).catch(console.error);
     }
   });
 
@@ -140,7 +138,10 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     if (socket.username) {
       delete users[socket.username];
-      io.emit("user_list", Object.keys(users));
+      io.emit("user_list", {
+        all: Array.from(knownUsers),
+        online: Object.keys(users)
+      });
       console.log("Disconnected:", socket.username);
     }
   });

@@ -6,8 +6,11 @@ import CryptoJS from 'crypto-js';
  * - username: string (твоё имя после регистрации)
  * - socket: socket.io client instance (передавай тот же socket из App.js)
  */
-export default function VideoCall({ username, socket }) {
+export default function VideoCall({ username, allUsers, onlineUsers, socket }) {
   const [users, setUsers] = useState([]);        // список других пользователей
+  const [allUsers, setAllUsers] = useState([]);
+  const [onlineUsers, setOnlineUsers] = useState([]);
+
   const [target, setTarget] = useState("");      // выбранный получатель
   const [incoming, setIncoming] = useState(null);// имя входящего звонка
   const [inCall, setInCall] = useState(false);   // флаг активного звонка
@@ -206,12 +209,24 @@ export default function VideoCall({ username, socket }) {
   useEffect(() => {
     if (!socket) return;
 
-    const onUserList = (list) => {
-      // exclude self if username known
-      if (username) setUsers(list.filter((u) => u !== username));
-      else setUsers(list);
-      console.log("user_list", list);
+    const onUserList = ({ all, online }) => {
+      if (!all || !online) {
+        console.warn("Invalid user_list payload", { all, online });
+        return;
+      }
+    
+      // убираем себя из общего списка
+      const filteredAll = username
+        ? all.filter((u) => u !== username)
+        : all;
+    
+      setAllUsers(filteredAll);
+      setOnlineUsers(online);
+    
+      console.log("👥 all:", all);
+      console.log("🟢 online:", online);
     };
+    
 
     const onCallOffer = ({ from, offer }) => {
       console.log("call_offer from", from);
@@ -326,9 +341,9 @@ export default function VideoCall({ username, socket }) {
           <>
             <select value={target} onChange={(e) => setTarget(e.target.value)}>
               <option value="">— Выберите получателя —</option>
-              {users.map((u) => (
+              {allUsers.map((u) => (
                 <option key={u} value={u}>
-                  {u}
+                  {u} {isOnline ? "🟢" : "⚪"}
                 </option>
               ))}
             </select>

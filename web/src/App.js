@@ -8,6 +8,7 @@ import { requestNotificationPermission } from "./firebase";
 function App() {
   const [username, setUsername] = useState("");
   const [inputName, setInputName] = useState("");
+  const [allUsers, setAllUsers] = useState([]);
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [registered, setRegistered] = useState(false);
   const FAMILY_PASSWORD = "family-secret";
@@ -15,14 +16,15 @@ function App() {
   // Слушаем сервер
   useEffect(() => {
     // Подписка на список пользователей
-    socket.on("user_list", (users) => {
+    socket.on("user_list", ({all, online}) => {
       // если username ещё не установлен, просто показываем всех
       console.log("⚡ получение user_list app.js");
-      setOnlineUsers((prev) => {
-        if (!username) return users;
-        return users.filter((u) => u !== username);
-      });
-    });
+      if(!all || !online) return;
+      setAllUsers(all.filter((u) => u !== username));
+      setOnlineUsers(online);
+      return () => socket.off("user_list");
+
+    }, [username]);
   
     // Подтверждение регистрации
     socket.on("register_ok", async ({ name }) => {
@@ -77,7 +79,7 @@ function App() {
         <div>
           <h3>Вы вошли как: {username}</h3>
           <h4>Онлайн: {onlineUsers.join(", ")}</h4>
-          <VideoCall username={username} onlineUsers={onlineUsers} socket={socket} />
+          <VideoCall username={username} allUsers={allUsers} onlineUsers={onlineUsers} socket={socket} />
         </div>
       )}
     </div>
