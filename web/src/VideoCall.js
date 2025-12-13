@@ -9,7 +9,7 @@ import CryptoJS from 'crypto-js';
 export default function VideoCall({ username, allUsers, onlineUsers, socket }) {
   const [users, setUsers] = useState([]);        // список других пользователей
   // const [allUsers, setAllUsers] = useState([]);
-  const [onlineUsers, setOnlineUsers] = useState([]);
+  // const [onlineUsers, setOnlineUsers] = useState([]);
 
   const [target, setTarget] = useState("");      // выбранный получатель
   const [incoming, setIncoming] = useState(null);// имя входящего звонка
