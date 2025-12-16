@@ -264,7 +264,7 @@ export default function VideoCall({ username, allUsers, onlineUsers, socket }) {
       });
     };
 
-    socket.on("user_list", onUserList);
+    // socket.on("user_list", onUserList);
     socket.on("call_offer", onCallOffer);
     socket.on("call_answer", onCallAnswer);
     socket.on("ice_candidate", onIceCandidate);
@@ -273,7 +273,7 @@ export default function VideoCall({ username, allUsers, onlineUsers, socket }) {
     socket.emit("request_user_list");
 
     return () => {
-      socket.off("user_list", onUserList);
+      // socket.off("user_list", onUserList);
       socket.off("call_offer", onCallOffer);
       socket.off("call_answer", onCallAnswer);
       socket.off("ice_candidate", onIceCandidate);
