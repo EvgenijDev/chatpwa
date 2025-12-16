@@ -1,4 +1,4 @@
-name: Auto Deploy DEV
+name: Build & Deploy DEV
 
 on:
   push:
@@ -6,24 +6,47 @@ on:
       - dev
 
 jobs:
-  deploy:
+  build-deploy:
     runs-on: ubuntu-latest
 
     steps:
+      # 1️⃣ Забираем код
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Upload files via SCP (SFTP)
+      # 2️⃣ Node
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      # 3️⃣ Установка зависимостей (web)
+      - name: Install dependencies (web)
+        working-directory: web
+        run: npm ci --legacy-peer-deps
+
+      # 4️⃣ Build (web)
+      - name: Build web
+        working-directory: web
+        env:
+          CI: true
+        run: npm run build
+
+      # 5️⃣ Deploy build/ на сервер
+      - name: Upload build to server
         uses: appleboy/scp-action@v1.0.0
         with:
           host: ${{ secrets.FTP_HOST }}
           username: ${{ secrets.FTP_USERNAME }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           port: 22
-          source: "./*,!.git/**,!.github/**,!node_modules/**,!web/node_modules/**,!web/.env.production"
-          target: /var/www/dev.chatpwa.ru
+          source: "web/build/**"
+          target: /var/www/dev.chatpwa.ru/web/build
+          strip_components: 2
 
-      - name: Build project on remote server
+      # 6️⃣ Перезапуск сервера (без билда)
+      - name: Restart backend
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.FTP_HOST }}
@@ -31,12 +54,7 @@ jobs:
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           port: 22
           script: |
-            cd /var/www/dev.chatpwa.ru/web
-            npm install --legacy-peer-deps
-            npm run build
-
             cd /var/www/dev.chatpwa.ru/server
             npm install --legacy-peer-deps
             pm2 restart chatpwa-dev || pm2 start server.js --name chatpwa-dev --watch
             pm2 save
-
