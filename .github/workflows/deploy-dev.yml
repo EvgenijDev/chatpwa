@@ -32,6 +32,9 @@ jobs:
         working-directory: web
         env:
           CI: true
+          REACT_APP_FIREBASE_API_KEY: ${{ secrets.REACT_APP_API_KEY }}
+          REACT_APP_FIREBASE_APP_ID: ${{ secrets.REACT_APP_APP_ID }}
+          REACT_APP_FIREBASE_VAPID_KEY: ${{ secrets.REACT_APP_VAPID_KEY }}
         run: npm run build
 
       # 5️⃣ Deploy build/ на сервер

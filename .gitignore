@@ -36,5 +36,4 @@ server/build/
 *.tmp
 *.swp
 *.bak
-web/.env.production
 web/.env.local
