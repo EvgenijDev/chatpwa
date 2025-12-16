@@ -7,7 +7,7 @@ import CryptoJS from 'crypto-js';
  * - socket: socket.io client instance (передавай тот же socket из App.js)
  */
 export default function VideoCall({ username, allUsers, onlineUsers, socket }) {
-  const [users, setUsers] = useState([]);        // список других пользователей
+  // const [users, setUsers] = useState([]);        // список других пользователей
   // const [allUsers, setAllUsers] = useState([]);
   // const [onlineUsers, setOnlineUsers] = useState([]);
 
@@ -209,23 +209,23 @@ export default function VideoCall({ username, allUsers, onlineUsers, socket }) {
   useEffect(() => {
     if (!socket) return;
 
-    const onUserList = ({ all, online }) => {
-      if (!all || !online) {
-        console.warn("Invalid user_list payload", { all, online });
-        return;
-      }
+    // const onUserList = ({ all, online }) => {
+    //   if (!all || !online) {
+    //     console.warn("Invalid user_list payload", { all, online });
+    //     return;
+    //   }
     
-      // убираем себя из общего списка
-      const filteredAll = username
-        ? all.filter((u) => u !== username)
-        : all;
+    //   // убираем себя из общего списка
+    //   const filteredAll = username
+    //     ? all.filter((u) => u !== username)
+    //     : all;
     
-      setAllUsers(filteredAll);
-      setOnlineUsers(online);
+    //   setAllUsers(filteredAll);
+    //   setOnlineUsers(online);
     
-      console.log("👥 all:", all);
-      console.log("🟢 online:", online);
-    };
+    //   console.log("👥 all:", all);
+    //   console.log("🟢 online:", online);
+    // };
     
 
     const onCallOffer = ({ from, offer }) => {
