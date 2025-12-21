@@ -37,3 +37,4 @@ server/build/
 *.swp
 *.bak
 web/.env.local
+/public/firebase-config.js
