@@ -36,7 +36,7 @@ function App() {
       socket.emit("request_user_list");
 
       const token = await requestNotificationPermission();
-
+      console.log('pushToken', token);
       if (token) {
         fetch("/api/savePushToken", {
           method: "POST",
