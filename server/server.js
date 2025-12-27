@@ -111,6 +111,7 @@ io.on("connection", (socket) => {
     }
     // 🔔 Если пользователь НЕ онлайн → пушим
     if (!users[to] && pushTokens[to]) {
+      console.log('Если пользователь НЕ онлайн → пушим');
       admin.messaging().send({
         token: pushTokens[to],
         notification: {
@@ -118,9 +119,9 @@ io.on("connection", (socket) => {
           body: `${from} вам звонит`,
         },
         data: {
-          from
+          caller: from
         }
-      }).then(console.log).catch(console.error);
+      }).then('консоль отправленного пуша', console.log).catch('ошибка отправления пуша', console.error);
     }
   });
 
