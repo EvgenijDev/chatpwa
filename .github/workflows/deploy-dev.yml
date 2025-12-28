@@ -49,6 +49,16 @@ jobs:
           target: /var/www/dev.chatpwa.ru/web/build
           strip_components: 2
 
+      - name: Upload backend
+        uses: appleboy/scp-action@v1
+        with:
+          host: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          port: 22
+          source: "server/server.js"
+          target: /var/www/dev.chatpwa.ru/server
+
       # 6️⃣ Перезапуск сервера (без билда)
       - name: Restart backend
         uses: appleboy/ssh-action@v1.0.0
@@ -57,8 +67,6 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           port: 22
-          source: "server/server.js"
-          target: /var/www/dev.chatpwa.ru/server
           script: |
             cd /var/www/dev.chatpwa.ru/server
             npm install --legacy-peer-deps
