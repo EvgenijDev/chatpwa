@@ -124,7 +124,7 @@ io.on("connection", (socket) => {
         data: {
           caller: from
         }
-      }).then(console.log('консоль отправленного пуша')).catch(console.error);
+      }).then(console.log('консоль отправленного пуша_')).catch(console.error);
     }
   });
 
