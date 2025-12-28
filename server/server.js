@@ -109,6 +109,9 @@ io.on("connection", (socket) => {
     if (to && users[to]) {
       users[to].emit("call_offer", { from, offer });
     }
+    console.log('users', users);
+    console.log('to', to);
+    console.log('pushTokens', pushTokens);
     // 🔔 Если пользователь НЕ онлайн → пушим
     if (!users[to] && pushTokens[to]) {
       console.log('Если пользователь НЕ онлайн → пушим');
