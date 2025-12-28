@@ -57,6 +57,8 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           port: 22
+          source: "server/server.js"
+          target: /var/www/dev.chatpwa.ru/server
           script: |
             cd /var/www/dev.chatpwa.ru/server
             npm install --legacy-peer-deps
