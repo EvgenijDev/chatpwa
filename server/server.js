@@ -121,7 +121,7 @@ io.on("connection", (socket) => {
         data: {
           caller: from
         }
-      }).then('консоль отправленного пуша', console.log).catch('ошибка отправления пуша', console.error);
+      }).then(console.log('консоль отправленного пуша')).catch(console.error);
     }
   });
 
