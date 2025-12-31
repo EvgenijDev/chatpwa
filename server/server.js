@@ -158,8 +158,8 @@ app.get("/", (req, res) => {
 });
 
 app.post("/api/savePushToken", express.json(), (req, res) => {
-  console.log("🔥 request sent to save token for", username);
   const { username, token } = req.body;
+  console.log("🔥 request sent to save token for", username);
   if (username && token) {
     pushTokens[username] = token;
     console.log("🔥 Saved token for", username);
