@@ -124,7 +124,12 @@ io.on("connection", (socket) => {
         data: {
           caller: from
         }
-      }).then(console.log('консоль отправленного пуша_')).catch(console.error);
+      }).then((messageId) => {
+        console.log("✅ FCM accepted message:", messageId);
+      })
+      .catch((err) => {
+        console.error("❌ FCM send error:", err);
+      });
     }
   });
 
