@@ -20,6 +20,20 @@ messaging.onBackgroundMessage((payload) => {
   });
 });
 
+self.addEventListener('push', event => {
+  event.waitUntil(
+    (async () => {
+      console.log('🔥 PUSH RECEIVED');
+
+      await self.registration.showNotification(
+        'SW TEST',
+        { body: 'Push дошёл' }
+      );
+    })()
+  );
+});
+
+
 // Обработчик клика по пушу
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
