@@ -20,30 +20,31 @@ messaging.onBackgroundMessage((payload) => {
   });
 });
 
-self.addEventListener('push', event => {
+
+self.addEventListener("notificationclick", event => {
+  event.notification.close();
+
+  const caller = event.notification.data?.caller || "";
+
   event.waitUntil(
     (async () => {
-      console.log('🔥 PUSH RECEIVED');
+      const clientsArr = await self.clients.matchAll({
+        type: "window",
+        includeUncontrolled: true,
+      });
 
-      await self.registration.showNotification(
-        'SW TEST',
-        { body: 'Push дошёл' }
+      // 1️⃣ если уже есть вкладка — просто фокус
+      for (const client of clientsArr) {
+        if ("focus" in client) {
+          return client.focus();
+        }
+      }
+
+      // 2️⃣ если вкладок нет — открыть новую
+      return self.clients.openWindow(
+        `/call?from=${encodeURIComponent(caller)}`
       );
     })()
   );
 });
 
-
-// Обработчик клика по пушу
-self.addEventListener("notificationclick", (event) => {
-  event.notification.close();
-
-  const urlToOpen = new URL("/call?from=" + event.notification.data?.caller, self.location.origin);
-
-  event.waitUntil(self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clientList) => {
-    for (const client of clientList) {
-      if (client.url === urlToOpen.href && "focus" in client) return client.focus();
-    }
-    return self.clients.openWindow(urlToOpen.href);
-  }));
-});
