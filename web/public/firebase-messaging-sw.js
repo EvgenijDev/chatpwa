@@ -38,12 +38,12 @@ self.addEventListener('push', event => {
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
 
-  const urlToOpen = new URL("/call?from=" + event.notification.data.from, self.location.origin);
+  const urlToOpen = new URL("/call?from=" + event.notification.data?.caller, self.location.origin);
 
-  event.waitUntil(self.clients.matchAll({ type: "window" }).then((clientList) => {
+  event.waitUntil(self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clientList) => {
     for (const client of clientList) {
       if (client.url === urlToOpen.href && "focus" in client) return client.focus();
     }
-    return clients.openWindow(urlToOpen.href);
+    return self.clients.openWindow(urlToOpen.href);
   }));
 });
