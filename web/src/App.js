@@ -12,6 +12,7 @@ function App() {
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [registered, setRegistered] = useState(false);
   const FAMILY_PASSWORD = "family-secret";
+  const [notificationsAlert, setNotificationsAlert] = useState(false);
 
   // Слушаем сервер
   useEffect(() => {
@@ -35,8 +36,7 @@ function App() {
       // после регистрации запросим актуальный список
       socket.emit("request_user_list");
 
-      const token = await requestNotificationPermission();
-      console.log('pushToken', token);
+      const { token, permission } = await requestNotificationPermission();
       if (token) {
         fetch("/api/savePushToken", {
           method: "POST",
@@ -64,6 +64,29 @@ function App() {
 
   return (
     <div style={{ padding: 20, fontFamily: "sans-serif" }}>
+      {/* 🔔 УВЕДОМЛЕНИЕ */}
+      {notificationsAlert && (
+        <div style={{
+          background: "#fff3cd",
+          padding: 12,
+          borderRadius: 6,
+          marginBottom: 12
+        }}>
+          🔔 Разрешите уведомления, чтобы получать входящие звонки
+          <button
+            style={{ marginLeft: 10 }}
+            onClick={async () => {
+              const { permission } = await requestNotificationPermission();
+              if (permission === "granted") {
+                setNotificationsAlert(false);
+              }
+            }}
+          >
+            Разрешить
+          </button>
+        </div>
+      )}
+
       {!registered ? (
         <div>
           <h2>FamilyChat</h2>

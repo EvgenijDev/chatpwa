@@ -30,7 +30,7 @@ export async function requestNotificationPermission() {
   });
 
   console.log("🔥 FCM Token:", token);
-  return token;
+  return {token, permission};
 }
 
 export function subscribeOnForegroundMessages(handler) {
