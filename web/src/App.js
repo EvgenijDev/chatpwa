@@ -14,6 +14,7 @@ function App() {
   const FAMILY_PASSWORD = "family-secret";
   const [notificationsAlert, setNotificationsAlert] = useState(false);
   const [phone, setPhone] = useState("");
+  const [user, setUser] = useState(null);
 
 
   useEffect(() => {
