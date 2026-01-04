@@ -67,6 +67,19 @@ try {
   console.warn("⚠️ firebase-key.json не найден в", FIREBASE_KEY_PATH);
 }
 
+io.use((socket, next) => {
+  try {
+    const token = socket.handshake.auth.token;
+    const user = verifyJWT(token);
+
+    socket.user = user; // 👈 ВАЖНО
+    next();
+  } catch (e) {
+    next(new Error("unauthorized"));
+  }
+});
+
+
 io.on("connection", (socket) => {
   console.log("New socket:", socket.id);
 
@@ -109,6 +122,7 @@ io.on("connection", (socket) => {
     if (to && users[to]) {
       users[to].emit("call_offer", { from, offer });
     }
+    const fromSocket = socket.user.phone;
     console.log('users', users);
     console.log('to', to);
     console.log('pushTokens', pushTokens);
@@ -172,6 +186,24 @@ app.post("/api/savePushToken", express.json(), (req, res) => {
   res.json({ ok: true });
 });
 
+app.post("/api/auth/phone", async (req, res) => {
+  const { idToken } = req.body;
+
+  const decoded = await admin.auth().verifyIdToken(idToken);
+
+  const phone = decoded.phone_number;
+
+  // выдаём свой JWT
+  const jwt = createJWT({ phone });
+
+  res.cookie("auth", jwt, {
+    httpOnly: true,
+    maxAge: 365 * 24 * 60 * 60 * 1000 // 1 год
+  });
+
+  res.json({ ok: true });
+});
+
 function generateTurnCredentials(name) {
   const ttl = 3600; // 1 час
   const timestamp = Math.floor(Date.now() / 1000) + ttl;
@@ -186,6 +218,12 @@ app.get("/turn", (req, res) => {
 
   res.json(generateTurnCredentials(name));
 });
+
+
+app.get("/api/me", authMiddleware, (req, res) => {
+  res.json(req.user);
+});
+
 
 server.listen(HTTP_PORT, () => {
   console.log(`Server listening on port ${HTTP_PORT}  (USE_HTTPS=${USE_HTTPS})`);

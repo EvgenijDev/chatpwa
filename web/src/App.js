@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import socket from "./Socket";
 import VideoCall from "./VideoCall";
 import { requestNotificationPermission } from "./firebase";
-
+import { getAuth, signInWithPhoneNumber } from "firebase/auth";
 
 
 function App() {
@@ -13,6 +13,16 @@ function App() {
   const [registered, setRegistered] = useState(false);
   const FAMILY_PASSWORD = "family-secret";
   const [notificationsAlert, setNotificationsAlert] = useState(false);
+  const [phone, setPhone] = useState("");
+
+
+  useEffect(() => {
+    fetch("/api/me", { credentials: "include" })
+      .then(res => res.json())
+      .then(user => setUser(user))
+      .catch(() => setUser(null));
+  }, []);
+
 
   // Слушаем сервер
   useEffect(() => {
@@ -63,6 +73,40 @@ function App() {
     socket.emit("register", { name: inputName.trim(), password: FAMILY_PASSWORD });
   };
 
+  const auth = getAuth();
+
+  const sendCode = async () => {
+    window.recaptchaVerifier = new RecaptchaVerifier(
+      auth,
+      "recaptcha-container",
+      { size: "invisible" }
+    );
+
+    const confirmation = await signInWithPhoneNumber(
+      auth,
+      phone,
+      window.recaptchaVerifier
+    );
+
+    window.confirmationResult = confirmation;
+  };
+
+  const verifyCode = async () => {
+    const result = await window.confirmationResult.confirm(code);
+  
+    const idToken = await result.user.getIdToken();
+  
+    // отправляем токен на backend
+    await fetch("/api/auth/phone", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ idToken })
+    });
+  };
+  
+
+
+
   return (
     <div style={{ padding: 20, fontFamily: "sans-serif" }}>
       {/* 🔔 УВЕДОМЛЕНИЕ */}
@@ -98,6 +142,16 @@ function App() {
             onChange={(e) => setInputName(e.target.value)}
           />
           <button onClick={register}>Войти</button>
+          <input
+            placeholder="+31..."
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+          />
+          <div id="recaptcha-container"></div>
+          <button onClick={sendCode}>
+            Продолжить
+          </button>
+
         </div>
       ) : (
         <div>
