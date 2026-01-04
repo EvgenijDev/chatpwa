@@ -220,7 +220,7 @@ app.get("/turn", (req, res) => {
 });
 
 
-app.get("/api/me", authMiddleware, (req, res) => {
+app.get("/api/me", (req, res) => {
   res.json(req.user);
 });
 
