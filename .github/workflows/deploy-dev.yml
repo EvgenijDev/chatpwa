@@ -56,7 +56,10 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           port: 22
-          source: "server/server.js"
+          source: |
+            server/server.js
+            server/package.json
+            server/package-lock.json
           target: /var/www/dev.chatpwa.ru/server
           strip_components: 1   # убирает лишнюю вложенность
 
