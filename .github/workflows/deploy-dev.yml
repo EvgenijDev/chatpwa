@@ -62,7 +62,7 @@ jobs:
             server/package-lock.json
           target: /var/www/dev.chatpwa.ru/server
           strip_components: 1   # убирает лишнюю вложенность
-
+# 
 
       # 6️⃣ Перезапуск сервера (без билда)
       - name: Restart backend
