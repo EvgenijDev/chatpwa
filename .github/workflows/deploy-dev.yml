@@ -82,6 +82,7 @@ jobs:
           port: 22
           script: |
             cd /var/www/dev.chatpwa.ru/server
+            rm -rf node_modules
             npm install --legacy-peer-deps
             pm2 restart chatpwa-dev || pm2 start server.js --name chatpwa-dev --watch
             pm2 save
