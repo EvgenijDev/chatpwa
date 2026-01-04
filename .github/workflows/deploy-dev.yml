@@ -56,9 +56,20 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           port: 22
-          source: "server/server.js server/package.json server/package-lock.json"
+          source: "server/server.js"
           target: /var/www/dev.chatpwa.ru/server
           strip_components: 1   # убирает лишнюю вложенность
+
+      - name: Upload package files
+        uses: appleboy/scp-action@v1
+        with:
+          host: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          port: 22
+          source: "server/package*.json"
+          target: /var/www/dev.chatpwa.ru/server
+          strip_components: 1
 
 
       # 6️⃣ Перезапуск сервера (без билда)
