@@ -172,9 +172,31 @@ io.on("connection", (socket) => {
   });
 });
 
+
+
+app.get("/api/me", authMiddleware, (req, res) => {
+  res.json({
+    phone: req.user.phone
+  });
+});
+
 // serve static web build (after you run `npm run build` in web/)
 app.use(express.static(path.join(__dirname, "../web/build")));
 app.use(cookieParser());
+function authMiddleware(req, res, next) {
+  try {
+    const token = req.cookies?.auth;
+    if (!token) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || "JWT_SECRET");
+    req.user = decoded; // { phone }
+    next();
+  } catch (e) {
+    return res.status(401).json({ error: "Invalid token" });
+  }
+}
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../web/build/index.html"));
 });
@@ -222,27 +244,6 @@ app.get("/turn", (req, res) => {
   res.json(generateTurnCredentials(name));
 });
 
-
-function authMiddleware(req, res, next) {
-  try {
-    const token = req.cookies?.auth;
-    if (!token) {
-      return res.status(401).json({ error: "Not authenticated" });
-    }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "JWT_SECRET");
-    req.user = decoded; // { phone }
-    next();
-  } catch (e) {
-    return res.status(401).json({ error: "Invalid token" });
-  }
-}
-
-app.get("/api/me", authMiddleware, (req, res) => {
-  res.json({
-    phone: req.user.phone
-  });
-});
 
 
 server.listen(HTTP_PORT, () => {
