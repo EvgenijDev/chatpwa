@@ -14,6 +14,23 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
+
+/**
+ * auth.settings.appVerificationDisabledForTesting = true; 
+ * reCAPTCHA отключается
+auth.settings.appVerificationDisabledForTesting = true; 
+SMS не отправляется
+код приходит как 123456
+👉 Это подходит:
+для локальной разработки
+для тестов
+для проверки логики backend / socket
+❌ Но:
+в проде работать не будет
+на реальных номерах — нет
+ */
+auth.settings.appVerificationDisabledForTesting = true; 
+
 export const messaging = getMessaging(app);
 
 // Получить Permission + токен FCM
