@@ -78,9 +78,9 @@ function App() {
 
   const sendCode = async () => {
     window.recaptchaVerifier = new RecaptchaVerifier(
-      auth,
       "recaptcha-container",
-      { size: "invisible" }
+      { size: "invisible" },
+      auth
     );
 
     const confirmation = await signInWithPhoneNumber(
