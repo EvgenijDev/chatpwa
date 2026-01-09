@@ -75,10 +75,11 @@ function App() {
   };
 
   const sendCode = async () => {
+    console.log("auth.settings =", auth.settings);
     window.recaptchaVerifier = new RecaptchaVerifier(
+      auth,
       "recaptcha-container",
-      { size: "invisible" },
-      auth
+      { size: "invisible" }
     );
 
     const confirmation = await signInWithPhoneNumber(
