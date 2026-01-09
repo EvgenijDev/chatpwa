@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import socket from "./Socket";
 import VideoCall from "./VideoCall";
 import { requestNotificationPermission } from "./firebase";
-import { getAuth, signInWithPhoneNumber } from "firebase/auth";
+import { getAuth, signInWithPhoneNumber, RecaptchaVerifier } from "firebase/auth";
 
 
 function App() {
