@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import socket from "./Socket";
 import VideoCall from "./VideoCall";
-import { requestNotificationPermission } from "./firebase";
-import { getAuth, signInWithPhoneNumber, RecaptchaVerifier } from "firebase/auth";
+import { requestNotificationPermission, auth } from "./firebase";
+import { signInWithPhoneNumber, RecaptchaVerifier } from "firebase/auth";
 
 
 function App() {
@@ -73,8 +73,6 @@ function App() {
     if (!inputName.trim()) return alert("Введите имя!");
     socket.emit("register", { name: inputName.trim(), password: FAMILY_PASSWORD });
   };
-
-  const auth = getAuth();
 
   const sendCode = async () => {
     window.recaptchaVerifier = new RecaptchaVerifier(
