@@ -15,6 +15,9 @@ function App() {
   const [notificationsAlert, setNotificationsAlert] = useState(false);
   const [phone, setPhone] = useState("");
   const [user, setUser] = useState(null);
+  const [code, setCode] = useState("");
+  const [codeSent, setCodeSent] = useState(false);
+
 
 
   useEffect(() => {
@@ -89,6 +92,9 @@ function App() {
     );
 
     window.confirmationResult = confirmation;
+    setCodeSent(true);
+
+    alert("DEV режим: введи код 123456");
   };
 
   const verifyCode = async () => {
@@ -151,6 +157,18 @@ function App() {
           <button onClick={sendCode}>
             Продолжить
           </button>
+
+
+          {codeSent && (
+            <>
+              <input
+                placeholder="Код из SMS"
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+              />
+              <button onClick={verifyCode}>Подтвердить</button>
+            </>
+          )}
 
         </div>
       ) : (
